@@ -1,0 +1,117 @@
+CASet e DISC: comparação por interseção e por união
+===================================================
+
+Este arquivo explica as variantes implementadas em CASet.py e DISC.py, com
+base no artigo “Distance measures for tumor evolutionary trees”, de DiNardo
+et al. (Bioinformatics, 2020).
+
+1. O que as métricas comparam
+----------------------------
+
+Uma árvore de evolução tumoral tem mutações nos nós. Para cada mutação i,
+considere A(i) como o conjunto de mutações ancestrais a i.
+
+Para um par de mutações i e j:
+
+- C(i,j) é o conjunto de mutações ancestrais comuns a i e j.
+- D(i,j) = A(i) - A(j) é o conjunto de mutações ancestrais de i que não
+  são ancestrais de j.
+
+CASet calcula a média das distâncias de Jaccard entre os conjuntos C(i,j)
+das duas árvores, para pares não ordenados de mutações.
+
+DISC calcula a média das distâncias de Jaccard entre os conjuntos D(i,j)
+das duas árvores, para pares ordenados distintos (i,j). DISC considera a
+direção da relação ancestral, por isso compara (i,j) e (j,i).
+
+A distância de Jaccard entre X e Y é:
+
+    1 - |X interseção Y| / |X união Y|
+
+Se X e Y forem ambos vazios, o artigo define a distância de Jaccard como 0.
+
+2. Interseção das mutações (-- padrão)
+--------------------------------------
+
+Se M1 e M2 são os conjuntos de rótulos de mutação das duas árvores, a
+interseção é:
+
+    I = M1 interseção M2
+
+As métricas consideram somente pares formados por mutações de I:
+
+- CASet compara C1(i,j) e C2(i,j) para cada par não ordenado de I.
+- DISC compara D1(i,j) e D2(i,j) para cada par ordenado distinto de I.
+
+Esta variante concentra a comparação nas mutações compartilhadas e reduz o
+efeito de diferenças nos rótulos presentes em apenas uma árvore. É útil,
+por exemplo, quando se quer comparar padrões evolutivos entre árvores que
+não contêm exatamente as mesmas mutações.
+
+Importante: o artigo observa que os conjuntos de ancestrais C(i,j) e D(i,j)
+comparados ainda podem conter mutações presentes em apenas uma das árvores.
+Portanto, a variante por interseção não equivale a apagar todas as mutações
+exclusivas, contrair a árvore e então comparar as topologias resultantes.
+
+No programa, a interseção é o padrão. Não passar -u seleciona CASet∩ ou
+DISC∩.
+
+3. União das mutações (-u)
+-------------------------
+
+A união é:
+
+    U = M1 união M2
+
+As métricas consideram pares formados por todo o conjunto U. Quando uma
+mutação não existe em uma das árvores, o artigo define seu conjunto de
+ancestrais naquela árvore como vazio. Assim, diferenças de presença ou
+ausência de mutações também podem contribuir para a distância.
+
+Esta variante é útil quando a diferença entre os conjuntos de rótulos deve
+ser considerada, como em comparações entre árvores inferidas de tipos de
+dados diferentes, momentos de coleta diferentes ou amostras distintas.
+
+No programa, passar -u seleciona CASet∪ ou DISC∪. A opção afeta tanto as
+comparações par a par quanto a comparação da árvore de consenso com cada
+árvore.
+
+4. Como interpretar valores e casos-limite
+------------------------------------------
+
+As saídas são distâncias, não escores de similaridade: 0 significa que os
+conjuntos comparados pela variante escolhida coincidiram; valores mais altos
+indicam maior diferença nos conjuntos considerados. Um zero na variante por
+interseção não garante que as árvores completas sejam idênticas, pois as
+mutações exclusivas podem ter sido ignoradas.
+
+As fórmulas precisam de pelo menos duas mutações no conjunto usado para
+formar pares. Se houver menos de duas, não há pares para calcular a média.
+Neste programa, o resultado é NaN (indefinido), aparece em cinza no gráfico
+e é salvo como NaN no arquivo NumPy. O artigo descreve explicitamente o caso
+de conjuntos de mutações disjuntos para a variante de interseção como um
+caso degenerado com distância 0; o programa marca como indefinido qualquer
+caso com menos de duas mutações, para não confundir ausência de pares com
+distância calculada igual a zero.
+
+5. Propriedades matemáticas
+---------------------------
+
+O artigo demonstra CASet e DISC como métricas quando as árvores comparadas
+têm o mesmo conjunto de mutações. Para as extensões por união e interseção,
+o suplemento mostra que a desigualdade triangular pode falhar em geral.
+Além disso, a variante por interseção pode produzir distância zero entre
+árvores distintas, por exemplo quando elas não compartilham rótulos.
+Portanto, nas variantes com conjuntos diferentes, “distância” nomeia o
+escore definido pelas fórmulas, mas ele não necessariamente satisfaz todas
+as propriedades matemáticas de uma métrica.
+
+Referências
+-----------
+
+DiNardo, Z. et al. Distance measures for tumor evolutionary trees.
+Bioinformatics 36(7), 2090–2097 (2020).
+https://doi.org/10.1093/bioinformatics/btz869
+
+Material suplementar, incluindo a análise das propriedades métricas:
+https://academic.oup.com/bioinformatics/article/36/7/2090/5637226

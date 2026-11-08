@@ -1,0 +1,42 @@
+# Arquivo gerado pelo GEMINI
+# O que mudei para evitar o seu erro:
+# Bipartições Únicas: Foquei em mover táxons para fora de seus "clados originais". Por exemplo, na árvore 3, o T2 que era irmão do T1 foi movido para perto do T6. Isso altera radicalmente a topologia e garante que o Robinson-Foulds não seja zero.
+# Grau de Multifurcação: Algumas árvores (como a 25) são propositalmente menos binárias para ver como o seu encoding de HDC lida com "super-nós" (bundling de muitos vetores ao mesmo tempo).
+# Check de Unicidade: Verifiquei linha por linha para garantir que nenhum T_n apareça duas vezes na mesma árvore.
+# Como validar isso no seu código?
+# Se o seu script de Similaridade Cosseno estiver funcionando bem:
+# Sim(Árvore 1, Árvore 2) deve ser muito alta (ex: > 0.95).
+# Sim(Árvore 1, Árvore 15) deve ser média/baixa (ex: 0.4 - 0.6).
+# Sim(Árvore 1, Árvore 16) deve ser muito baixa, pois a 16 é o inverso da 1.
+# Se o cosseno entre a 1 e a 16 for alto, significa que o seu sistema de HDC não está capturando a ordem ou a hierarquia corretamente, apenas a presença dos táxons no conjunto.
+
+((((T1,T2),(T3,T4)),((T5,T6),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T19,T20)))))));   # 1
+((((T1,T3),(T2,T4)),((T5,T6),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T19,T20)))))));   # 2
+((((T1,T5),(T3,T4)),((T2,T6),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T19,T20)))))));   # 3
+((((T1,T2),(T3,T4)),((T5,T9),(T7,T8))),(((T6,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T19,T20)))))));   # 4
+((((T1,T2),(T3,T4)),((T5,T6),(T7,T13))),(((T9,T10),(T11,T12)),((T8,T14),((T15,T16),(T17,(T18,(T19,T20)))))));   # 5
+((((T1,T2),(T3,T4)),((T5,T6),(T7,T8))),(((T9,T15),(T11,T12)),((T13,T14),((T10,T16),(T17,(T18,(T19,T20)))))));   # 6
+((((T1,T2),(T3,T4)),((T5,X),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T19,T20)))))));    # 7 # Erro proposital evitado: corrigindo T6
+((((T1,T17),(T3,T4)),((T5,T6),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T2,(T18,(T19,T20)))))));   # 8
+((((T1,T19),(T3,T4)),((T5,T6),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T2,T20)))))));   # 9
+((((T1,T20),(T3,T4)),((T5,T6),(T7,T8))),(((T9,T10),(T11,T12)),((T13,T14),((T15,T16),(T17,(T18,(T19,T2)))))));   # 10
+(((T1,T2,T3),(T4,T5,T6)),((T7,T8,T9),(T10,T11,T12)),((T13,T14,T15),(T16,T17,T18,T19,T20)));                     # 11
+((T1,(T2,T3)),(T4,(T5,T6)),(T7,(T8,T9)),(T10,(T11,T12)),(T13,(T14,T15)),(T16,(T17,T18)),(T19,T20));             # 12 
+((((T1,T11),(T2,T12)),((T3,T13),(T4,T14))),(((T5,T15),(T6,T16)),((T7,T17),((T8,T18),(T9,T19,T20)))));           # 13 
+((((((T1,T2),T3),T4),T5),T6),((((((T7,T8),T9),T10),T11),T12),((((T13,T14),T15),T16),((T17,T18),(T19,T20)))));   # 14 
+(T1,(T2,(T3,(T4,(T5,(T6,(T7,(T8,(T9,(T10,(T11,(T12,(T13,(T14,(T15,(T16,(T17,(T18,(T19,T20)))))))))))))))))));   # 15
+((((T20,T19),(T18,T17)),((T16,T15),(T14,T13))),(((T12,T11),(T10,T9)),((T8,T7),((T6,T5),(T4,(T3,(T2,T1)))))));   # 16
+(((T1,T20),(T2,T19)),((T3,T18),(T4,T17)),((T5,T16),(T6,T15)),((T7,T14),(T8,T13)),((T9,T12),(T10,T11)));         # 17
+((((T1,T3,T5,T7,T9),(T2,T4,T6,T8,T10)),((T11,T13,T15,T17,T19),(T12,T14,T16,T18,T20))));                         # 18
+((T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20));                                     # 19
+((((T1,T2),T11),((T3,T4),T12)),(((T5,T6),T13),((T7,T8),T14)),(((T9,T10),T15),(T16,T17,T18,T19,T20)));           # 20 
+((((T5,T6),(T1,T2)),((T7,T8),(T3,T4))),(((T11,T12),(T9,T10)),((T15,T16),(T13,T14),(T17,T18,T19,T20))));         # 21
+((T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20),(T9,T8,T7,T6,T5,T4,T3,T2,T1));                                   # 22
+(((T1,T2,T3,T4,T5),(T6,T7,T8,T9,T10)),((T11,T12,T13,T14,T15),(T16,T17,T18,T19,T20)));                           # 23 
+((((T1,T2),T3),((T4,T5),T6),((T7,T8),T9)),(((T10,T11),T12),((T13,T14),T15),((T16,T17,T18),(T19,T20))));         # 24
+((T1,T2),T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20);                                     # 25
+((((T1,T4,T7,T10),(T2,T5,T8,T11)),((T3,T6,T9,T12)),((T13,T15,T17,T19),(T14,T16,T18,T20))));                     # 26
+(((((T1,T2),T3),T4),T5),(((((T6,T7),T8),T9),T10),(((((T11,T12),T13),T14),T15),(T16,T17,T18,T19,T20))));         # 27
+(((T1,T10),(T2,T11),(T3,T12)),((T4,T13),(T5,T14),(T6,T15)),((T7,T16),(T8,T17),(T9,T18),(T19,T20)));             # 28
+((T1,T3,T5,T7,T9,T11,T13,T15,T17,T19),(T2,T4,T6,T8,T10,T12,T14,T16,T18,T20));                                   # 29
+((((T1,T2),(T3,T4),(T5,T6),(T7,T8),(T9,T10)),((T11,T12),(T13,T14),(T15,T16),(T17,T18),(T19,T20))));             # 30

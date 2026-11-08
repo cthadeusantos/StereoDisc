@@ -1,0 +1,119 @@
+CASet and DISC: comparison by intersection and by union
+=======================================================
+
+This file explains the variants implemented in CASet.py and DISC.py, based
+on the article "Distance measures for tumor evolutionary trees," by DiNardo
+et al. (Bioinformatics, 2020).
+
+1. What the metrics compare
+---------------------------
+
+A tumor evolutionary tree has mutations at its nodes. For each mutation i,
+consider A(i) as the set of mutations ancestral to i.
+
+For a pair of mutations i and j:
+
+- C(i,j) is the set of mutations common to the ancestors of i and j.
+- D(i,j) = A(i) - A(j) is the set of mutations ancestral to i that are not
+  ancestral to j.
+
+CASet computes the average of the Jaccard distances between the sets C(i,j)
+of the two trees, for unordered pairs of mutations.
+
+DISC computes the average of the Jaccard distances between the sets D(i,j)
+of the two trees, for distinct ordered pairs (i,j). DISC considers the
+direction of the ancestral relationship, which is why it compares (i,j) and
+(j,i).
+
+The Jaccard distance between X and Y is:
+
+    1 - |X intersection Y| / |X union Y|
+
+If X and Y are both empty, the article defines the Jaccard distance as 0.
+
+2. Intersection of mutations (-- default)
+-----------------------------------------
+
+If M1 and M2 are the sets of mutation labels of the two trees, the
+intersection is:
+
+    I = M1 intersection M2
+
+The metrics consider only pairs formed by mutations in I:
+
+- CASet compares C1(i,j) and C2(i,j) for each unordered pair in I.
+- DISC compares D1(i,j) and D2(i,j) for each distinct ordered pair in I.
+
+This variant focuses the comparison on shared mutations and reduces the
+effect of differences in labels present in only one tree. It is useful, for
+example, when one wants to compare evolutionary patterns between trees that
+do not contain exactly the same mutations.
+
+Important: the article notes that the compared ancestor sets C(i,j) and
+D(i,j) may still contain mutations present in only one of the trees.
+Therefore, the intersection variant is not equivalent to deleting all
+exclusive mutations, contracting the tree, and then comparing the resulting
+topologies.
+
+In the program, intersection is the default. Not passing -u selects CASet∩
+or DISC∩.
+
+3. Union of mutations (-u)
+--------------------------
+
+The union is:
+
+    U = M1 union M2
+
+The metrics consider pairs formed from the entire set U. When a mutation
+does not exist in one of the trees, the article defines its set of ancestors
+in that tree as empty. Thus, differences in the presence or absence of
+mutations can also contribute to the distance.
+
+This variant is useful when the difference between the sets of labels should
+be considered, as in comparisons between trees inferred from different data
+types, different collection times, or different samples.
+
+In the program, passing -u selects CASet∪ or DISC∪. The option affects both
+the pairwise comparisons and the comparison of the consensus tree with each
+tree.
+
+4. How to interpret values and edge cases
+-----------------------------------------
+
+The outputs are distances, not similarity scores: 0 means that the sets
+compared by the chosen variant coincided; higher values indicate greater
+difference in the considered sets. A zero in the intersection variant does
+not guarantee that the complete trees are identical, since exclusive
+mutations may have been ignored.
+
+The formulas require at least two mutations in the set used to form pairs.
+If there are fewer than two, there are no pairs to compute the average. In
+this program, the result is NaN (undefined), appears in gray in the plot,
+and is saved as NaN in the NumPy file. The article explicitly describes the
+case of disjoint mutation sets for the intersection variant as a degenerate
+case with distance 0; the program marks any case with fewer than two
+mutations as undefined, so as not to confuse the absence of pairs with a
+computed distance equal to zero.
+
+5. Mathematical properties
+--------------------------
+
+The article demonstrates CASet and DISC as metrics when the compared trees
+have the same set of mutations. For the union and intersection extensions,
+the supplement shows that the triangle inequality can fail in general.
+Moreover, the intersection variant can produce distance zero between
+distinct trees, for example when they do not share labels. Therefore, in the
+variants with different sets, "distance" names the score defined by the
+formulas, but it does not necessarily satisfy all the mathematical
+properties of a metric.
+
+References
+----------
+
+DiNardo, Z. et al. Distance measures for tumor evolutionary trees.
+Bioinformatics 36(7), 2090–2097 (2020).
+https://doi.org/10.1093/bioinformatics/btz869
+
+Supplementary material, including the analysis of metric properties:
+https://academic.oup.com/bioinformatics/article/36/7/2090/5637226
